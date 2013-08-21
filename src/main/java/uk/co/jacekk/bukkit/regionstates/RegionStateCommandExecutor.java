@@ -55,17 +55,15 @@ public class RegionStateCommandExecutor extends BaseCommandExecutor<RegionStates
 			return;
 		}
 		
-		ProtectedRegion region = this.plugin.worldGuard.getRegionManager(world).getRegion(args[1]);
+		ProtectedRegion region = this.plugin.getWorldGuard().getRegionManager(world).getRegion(args[1]);
 		
 		if (region == null){
 			sender.sendMessage(ChatColor.RED + "No region found with the name '" + args[1] + "'");
 			return;
 		}
 		
-		RegionState state = new RegionState(this.plugin, world, region, args[2]);
-		
 		try{
-			state.save();
+			this.plugin.getStateManager().add(new RegionState(this.plugin, world, region, args[2]));
 			sender.sendMessage(ChatColor.GREEN + "State saved");
 		}catch (Exception e){
 			sender.sendMessage(ChatColor.RED + "Failed to save state: " + e.getMessage());
@@ -92,14 +90,14 @@ public class RegionStateCommandExecutor extends BaseCommandExecutor<RegionStates
 			return;
 		}
 		
-		ProtectedRegion region = this.plugin.worldGuard.getRegionManager(world).getRegion(args[1]);
+		ProtectedRegion region = this.plugin.getWorldGuard().getRegionManager(world).getRegion(args[1]);
 		
 		if (region == null){
 			sender.sendMessage(ChatColor.RED + "No region found with the name '" + args[1] + "'");
 			return;
 		}
 		
-		RegionState state = this.plugin.getState(world, region, args[2]);
+		RegionState state = this.plugin.getStateManager().getState(world, region, args[2]);
 		
 		if (state == null){
 			sender.sendMessage(ChatColor.RED + "No state found with the name '" + args[2] + "'");
@@ -107,7 +105,7 @@ public class RegionStateCommandExecutor extends BaseCommandExecutor<RegionStates
 		}
 		
 		try{
-			state.remove();
+			this.plugin.getStateManager().remove(state);
 			sender.sendMessage(ChatColor.GREEN + "State removed");
 		}catch (Exception e){
 			sender.sendMessage(ChatColor.RED + "Failed to remove state: " + e.getMessage());
@@ -134,7 +132,7 @@ public class RegionStateCommandExecutor extends BaseCommandExecutor<RegionStates
 			return;
 		}
 		
-		ProtectedRegion region = this.plugin.worldGuard.getRegionManager(world).getRegion(args[1]);
+		ProtectedRegion region = this.plugin.getWorldGuard().getRegionManager(world).getRegion(args[1]);
 		
 		if (region == null){
 			sender.sendMessage(ChatColor.RED + "No region found with the name '" + args[1] + "'");
@@ -143,7 +141,7 @@ public class RegionStateCommandExecutor extends BaseCommandExecutor<RegionStates
 		
 		sender.sendMessage(ChatColor.GREEN + "States:");
 		
-		for (RegionState state : this.plugin.getStates(world, region)){
+		for (RegionState state : this.plugin.getStateManager().getStates(world, region)){
 			sender.sendMessage(ChatColor.GREEN + "  - " + state.getName());
 		}
 	}
@@ -167,14 +165,14 @@ public class RegionStateCommandExecutor extends BaseCommandExecutor<RegionStates
 			return;
 		}
 		
-		ProtectedRegion region = this.plugin.worldGuard.getRegionManager(world).getRegion(args[1]);
+		ProtectedRegion region = this.plugin.getWorldGuard().getRegionManager(world).getRegion(args[1]);
 		
 		if (region == null){
 			sender.sendMessage(ChatColor.RED + "No region found with the name '" + args[1] + "'");
 			return;
 		}
 		
-		RegionState state = this.plugin.getState(world, region, args[2]);
+		RegionState state = this.plugin.getStateManager().getState(world, region, args[2]);
 		
 		if (state == null){
 			sender.sendMessage(ChatColor.RED + "No state found with the name '" + args[2] + "'");

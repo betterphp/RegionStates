@@ -27,19 +27,7 @@ public class RegionState {
 		this.region = region;
 		this.name = name;
 		
-		this.file = new File(plugin.getDataFolder(), world.getName() + "_" + region.getId() + "_" + name + ".schematic");
-	}
-	
-	public RegionState(RegionStates plugin, File file){
-		this.plugin = plugin;
-		this.file = file;
-		
-		String fileName = this.file.getName();
-		String[] parts = fileName.substring(0, fileName.length() - 10).split("_");
-		
-		this.world = plugin.server.getWorld(parts[0]);
-		this.region = this.plugin.worldGuard.getRegionManager(this.world).getRegion(parts[1]);
-		this.name = parts[2];
+		this.file = new File(plugin.getDataFolder(), world.getUID().toString() + File.separator + region.getId() + File.separator + name + ".schematic");
 	}
 	
 	@Override
@@ -80,20 +68,8 @@ public class RegionState {
 		return this.name;
 	}
 	
-	public void save() throws IOException, DataException {
-		EditSession session = new EditSession(new BukkitWorld(this.world), Integer.MAX_VALUE);
-		CuboidClipboard clipboard = new CuboidClipboard(this.region.getMaximumPoint().subtract(this.region.getMinimumPoint()).add(1, 1, 1), this.region.getMinimumPoint());
-		clipboard.copy(session);
-		
-		SchematicFormat.MCEDIT.save(clipboard, this.file);
-		
-		this.plugin.states.remove(this);
-		this.plugin.states.add(this);
-	}
-	
-	public void remove(){
-		this.plugin.states.remove(this);
-		this.file.delete();
+	public File getSchematicFile(){
+		return this.file;
 	}
 	
 	public void apply() throws DataException, IOException, MaxChangedBlocksException {

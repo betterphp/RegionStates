@@ -1,23 +1,18 @@
 package uk.co.jacekk.bukkit.regionstates;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import org.bukkit.World;
 
 import uk.co.jacekk.bukkit.baseplugin.BasePlugin;
-import uk.co.jacekk.bukkit.baseplugin.scheduler.BaseTask;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionStates extends BasePlugin {
 	
-	public WorldGuardPlugin worldGuard;
-	public WorldEditPlugin worldEdit;
+	private WorldGuardPlugin worldGuard;
+	private WorldEditPlugin worldEdit;
 	
-	public ArrayList<RegionState> states;
+	private StateManager stateManager;
 	
 	@Override
 	public void onEnable(){
@@ -26,43 +21,28 @@ public class RegionStates extends BasePlugin {
 		this.worldGuard = (WorldGuardPlugin) this.pluginManager.getPlugin("WorldGuard");
 		this.worldEdit = (WorldEditPlugin) this.pluginManager.getPlugin("WorldEdit");
 		
+		this.stateManager = new StateManager(this);
+		
 		this.permissionManager.registerPermissions(Permission.class);
 		this.commandManager.registerCommandExecutor(new RegionStateCommandExecutor(this));
 		
-		this.states = new ArrayList<RegionState>();
-		
-		this.scheduler.runTask(this, new BaseTask<RegionStates>(this){
-			
-			@Override
-			public void run(){
-				for (File file : this.plugin.baseDir.listFiles()){
-					this.plugin.states.add(new RegionState(this.plugin, file));
-				}
-			}
-			
-		});
-	}
-	
-	public ArrayList<RegionState> getStates(World world, ProtectedRegion region){
-		ArrayList<RegionState> states = new ArrayList<RegionState>();
-		
-		for (RegionState state : this.states){
-			if (state.getWorld().equals(world) && state.getRegion().equals(region)){
-				states.add(state);
-			}
+		for (World world : this.server.getWorlds()){
+			this.stateManager.loadAll(world);
 		}
 		
-		return states;
+		this.pluginManager.registerEvents(new WorldInitListener(this), this);
 	}
 	
-	public RegionState getState(World world, ProtectedRegion region, String name){
-		for (RegionState state : this.states){
-			if (state.getWorld().equals(world) && state.getRegion().equals(region) && state.getName().equals(name)){
-				return state;
-			}
-		}
-		
-		return null;
+	public WorldGuardPlugin getWorldGuard(){
+		return this.worldGuard;
+	}
+	
+	public WorldEditPlugin getWorldEdit(){
+		return this.worldEdit;
+	}
+	
+	public StateManager getStateManager(){
+		return this.stateManager;
 	}
 	
 }
